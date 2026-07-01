@@ -1,215 +1,127 @@
-# Giffgaff 保号助手
+# GG Keeper
 
-一个极简的流量消耗工具，专为 Giffgaff SIM 卡保号设计。每次操作仅消耗约 120KB 流量，成本约 2-3 便士（0.2 元人民币）。
+给 Giffgaff / 漫游 SIM 保号用的极简 payload 页面，当前版本面向阿里云 ESA「函数和 Pages」部署，并保留纯静态 `payload.txt` 兜底。
 
-## 📋 功能特点
+页面风格与 `MineSunshineone/sms_forwarding` 固件 Web UI 保持一致：浅色纸面仪器、等宽数据读数、无外部资源依赖。
 
-- ✅ 精确控制流量消耗（约 120KB）
-- ✅ 防缓存机制，确保真实消耗流量
-- ✅ 实时显示消耗的流量大小
-- ✅ 本地记录使用历史
-- ✅ 响应式设计，手机浏览器友好
-- ✅ 完全静态，可部署在任何免费托管平台
+## 文件结构
 
-## 🚀 快速部署
-
-### 方案一：GitHub Pages（推荐）
-
-1. **创建仓库**
-   - 登录 GitHub
-   - 点击右上角 `+` → `New repository`
-   - 仓库名输入：`giffgaff-keeper`（或任意名称）
-   - 选择 `Public`
-   - 点击 `Create repository`
-
-2. **上传文件**
-   - 点击 `uploading an existing file`
-   - 将 `index.html` 和 `payload.txt` 拖入上传
-   - 点击 `Commit changes`
-
-3. **启用 GitHub Pages**
-   - 进入仓库的 `Settings`
-   - 左侧菜单找到 `Pages`
-   - Source 选择 `Deploy from a branch`
-   - Branch 选择 `main` (或 `master`)，目录选择 `/ (root)`
-   - 点击 `Save`
-
-4. **访问网页**
-   - 等待 1-2 分钟
-   - 访问地址：`https://你的用户名.github.io/giffgaff-keeper/`
-   - 保存这个链接到手机浏览器书签
-
-### 方案二：Gitee Pages（国内访问更快）
-
-1. 登录 Gitee，创建新仓库
-2. 上传 `index.html` 和 `payload.txt`
-3. 进入仓库 → 服务 → Gitee Pages
-4. 点击启动
-5. 访问生成的地址
-
-### 方案三：Cloudflare Pages
-
-1. 登录 Cloudflare
-2. Pages → Create a project
-3. 上传文件或连接 Git 仓库
-4. 部署完成后获得 `xxx.pages.dev` 域名
-
-## 📱 手机端设置（重要！）
-
-### Android 系统
-
-**方法一：使用独立浏览器（推荐）**
-
-1. 下载一个轻量级浏览器（推荐 Via 浏览器 或 X浏览器）
-2. 进入 `设置` → `应用管理` → `联网控制`
-3. **关闭所有应用**的移动数据权限
-4. **仅开启**刚下载的浏览器的移动数据权限
-
-**方法二：使用系统浏览器**
-
-1. 进入 `设置` → `移动网络` → `流量管理` → `应用联网`
-2. 关闭所有应用的数据权限
-3. 仅保留系统浏览器（如 Chrome）
-
-**小米手机专属：**
-- 设置 → 应用设置 → 应用管理 → 权限管理 → 联网控制
-
-**华为手机专属：**
-- 设置 → 移动网络 → 流量管理 → 更多流量设置 → 应用联网
-
-### iOS 系统
-
-1. 进入 `设置` → `蜂窝网络`
-2. 向下滚动到应用列表
-3. **关闭所有应用**的蜂窝数据开关
-4. 仅保留 Safari（或你常用的浏览器）
-5. 同时关闭：
-   - `Wi-Fi 助理`
-   - `iCloud 云盘` 的蜂窝数据
-
-⚠️ **iOS 注意事项：**
-- iOS 系统服务（推送、时间同步）可能会消耗少量流量
-- 建议操作完立即关闭移动数据
-
-## 🎯 使用步骤
-
-1. **准备阶段**
-   - 关闭 Wi-Fi
-   - 插入 Giffgaff SIM 卡
-   - 确认已设置好联网权限
-
-2. **执行保号**
-   - 打开移动数据
-   - 在浏览器中打开保号网页
-   - 点击 `开始保号` 按钮
-   - 等待显示 "保号成功"
-
-3. **验证扣费**
-   - 立即关闭移动数据
-   - 拨打 `*100#` 查询余额
-   - 确认扣除了 2-3 便士
-
-## 💰 成本分析
-
-| 项目 | 费用 |
-|------|------|
-| 每次流量消耗 | 约 120 KB |
-| Giffgaff 计费 | 2-3 便士/次 |
-| 折合人民币 | 约 0.2 元/次 |
-| 每月保号 | 1-2 次即可 |
-| 年度成本 | 约 5-10 元人民币 |
-
-对比发短信（约 1 元/次），节省 80% 成本！
-
-## 🔧 技术细节
-
-### 防缓存机制
-
-代码使用了多重防缓存策略：
-```javascript
-// 1. URL 参数：时间戳 + 随机字符串
-const timestamp = new Date().getTime();
-const randomStr = Math.random().toString(36).substring(7);
-const fileUrl = `payload.txt?t=${timestamp}&r=${randomStr}`;
-
-// 2. HTTP 头：强制不使用缓存
-fetch(fileUrl, {
-    cache: 'no-store',
-    headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-    }
-})
+```text
+.
+├── index.html          # 保号测试网页
+├── payload.txt         # 静态 payload，约 128684 bytes
+├── src/index.js        # ESA Pages 边缘函数，提供 /api/payload
+├── scripts/build.mjs   # 零依赖构建脚本，复制静态文件到 dist/
+├── esa.jsonc           # ESA Pages 项目配置
+└── package.json
 ```
 
-### Payload 文件说明
+## 阿里云 ESA Pages 部署
 
-- 大小：120 KB（122,880 bytes）
-- 内容：随机生成的文本，避免被压缩
-- 每行都不相同，防止网络优化
+在阿里云 ESA「函数和 Pages」里选择「导入 Github 仓库」，仓库选择：
 
-## ❓ 常见问题
+```text
+MineSunshineone/gg-keeper
+```
 
-### Q1: 为什么要禁用其他应用的联网权限？
+推荐配置：
 
-**A:** 如果不禁用，以下应用可能在后台偷跑流量：
-- 微信/QQ：同步消息
-- 系统更新：下载补丁
-- 邮件应用：检查新邮件
-- 云服务：同步照片/文件
+| 配置项 | 值 |
+| --- | --- |
+| 项目名称 | `gg-keeper` |
+| 生产分支 | `main` |
+| 非生产分支构建 | 关闭 |
+| 安装命令 | `npm install` |
+| 构建命令 | `npm run build` |
+| 根目录 | `/` |
+| 静态资源目录 | `dist` |
+| 函数文件路径 | `src/index.js` |
+| Node.js 版本 | `22.x` |
+| 环境变量 | 不填 |
 
-一次可能就是几 MB 甚至几十 MB，相当于几十次保号的费用！
+仓库里已经提供 `esa.jsonc`：
 
-### Q2: 可以用 Wi-Fi 测试吗？
+```jsonc
+{
+  "name": "gg-keeper",
+  "entry": "./src/index.js",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "assets": {
+    "directory": "./dist"
+  }
+}
+```
 
-**A:** 可以用 Wi-Fi 测试网页功能，但不会真正消耗 Giffgaff 流量。必须关闭 Wi-Fi，使用移动数据才有效。
+如果控制台自动读取 `esa.jsonc`，保持默认即可；如果没有自动填充，就按上表手动填。
 
-### Q3: 为什么选择 120KB？
+## URL 用法
 
-**A:** 
-- Giffgaff 可能忽略极小流量（<10KB）
-- 太大会增加成本
-- 120KB 是一个平衡点，稳定触发 1p 计费档位
+部署完成后，假设域名是：
 
-### Q4: 多久需要保号一次？
+```text
+https://example.aliyun-esa.com
+```
 
-**A:** 
-- Giffgaff 官方要求：每 6 个月至少使用一次
-- 建议：每 3-4 个月保号一次（保险起见）
-- 或者：余额到期前 1 个月保号
+网页入口：
 
-### Q5: 如何确认保号成功？
+```text
+https://example.aliyun-esa.com/
+```
 
-**A:** 
-1. 网页显示 "保号成功" 和消耗的流量
-2. 拨打 `*100#` 查询余额
-3. 确认余额减少了 2-3 便士
-4. 如果余额未变化，重新操作一次
+推荐给固件使用的动态 payload：
 
-### Q6: iOS 能完全阻止系统服务吗？
+```text
+https://example.aliyun-esa.com/api/payload?size=128684
+```
 
-**A:** 不能完全阻止。iOS 的部分系统服务会绕过限制，可能消耗 1-5 KB。但这不影响保号，因为我们设置的 120KB 已经足够覆盖。
+纯静态兜底 payload：
 
-## 🛡️ 安全提示
+```text
+https://example.aliyun-esa.com/payload.txt
+```
 
-- ✅ 本工具完全开源，无任何隐私收集
-- ✅ 所有数据保存在浏览器本地
-- ✅ 不连接任何第三方服务器
-- ✅ 可离线查看源代码验证安全性
+网页按钮会先尝试 `/api/payload?size=128684`，这个地址由阿里云 Pages 函数动态生成 payload；如果当前部署没有启用函数，会自动改用 `/payload.txt` 这个静态文件。
 
-## 📞 技术支持
+## 本地验证
 
-如有问题，可以：
-1. 查看本 README 的常见问题部分
-2. 检查浏览器控制台（F12）的错误信息
-3. 确认网络设置是否正确
+```bash
+npm install
+npm run build
+```
 
-## 📄 开源协议
+构建结果会输出到 `dist/`。静态页面可以用任意本地 HTTP 服务预览，例如：
 
-MIT License - 可自由使用、修改、分发
+```bash
+npx serve dist
+```
 
----
+边缘函数依赖 ESA Pages 运行环境，本地静态预览时 `/api/payload` 不会可用，页面会自动回退到 `payload.txt`。
 
-**最后提醒：操作完成后务必立即关闭移动数据，避免其他应用偷跑流量！**
+## Payload 说明
 
-💡 将网页添加到手机主屏幕，下次使用更方便！
+- `payload.txt` 当前大小：128684 bytes。
+- `/api/payload` 默认生成 128684 bytes 二进制 payload。
+- `/api/payload?size=46080` 可临时指定大小，函数限制范围为 1024 bytes 到 512 KiB。
+- 响应头包含 `Cache-Control: no-store`，同时网页请求会追加时间戳和随机参数，尽量避免浏览器或 CDN 缓存。
+
+## 手机手动测试注意
+
+1. 关闭 Wi-Fi，确保走蜂窝数据。
+2. 仅给浏览器保留移动数据权限，避免其他 App 偷跑流量。
+3. 网页显示完成后立刻关闭移动数据。
+4. 最终是否扣费 / 是否保号，以运营商 App、USSD 或账单为准。
+
+## 开源说明
+
+本仓库 fork 自：
+
+```text
+https://github.com/dennischancs/gg-keeper
+```
+
+当前二次开发仓库：
+
+```text
+https://github.com/MineSunshineone/gg-keeper
+```

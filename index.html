@@ -1,267 +1,444 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giffgaff 保号助手</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container { 
-            background: white;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 { 
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .info-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #555;
-        }
-        .info-box strong {
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        #status {
-            margin-top: 25px;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        #status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-        #status.loading {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffeaa7;
-        }
-        #status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-        .stats {
-            font-size: 13px;
-            margin-top: 8px;
-            opacity: 0.9;
-        }
-        .warning {
-            font-size: 12px;
-            color: #dc3545;
-            margin-top: 25px;
-            padding: 12px;
-            background: #fff5f5;
-            border-radius: 8px;
-            border-left: 4px solid #dc3545;
-            line-height: 1.6;
-        }
-        .warning strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .history {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .history-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .history-item {
-            font-size: 12px;
-            color: #888;
-            padding: 5px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GG Keeper</title>
+  <style>
+    :root {
+      --mono: 'SF Mono','Cascadia Code','Consolas','Liberation Mono',monospace;
+      --bg: #E7EAEF;
+      --grid: rgba(20,28,40,0.03);
+      --card: #FFFFFF;
+      --soft: #F6F8FA;
+      --line: #D8DDE4;
+      --line-strong: #C0C7D1;
+      --ink: #191D24;
+      --body: #3F4651;
+      --mute: #687282;
+      --faint: #9AA2AE;
+      --accent: #B07208;
+      --accent-hover: #C48716;
+      --accent-soft: rgba(176,114,8,0.10);
+      --ok: #2F8A5B;
+      --ok-soft: rgba(47,138,91,0.10);
+      --err: #B84E32;
+      --err-soft: rgba(184,78,50,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      color: var(--ink);
+      background: var(--bg);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 28px 28px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .panel {
+      width: min(430px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+    }
+
+    .head {
+      padding: 18px 20px 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--mute);
+      font-size: 12.5px;
+    }
+
+    .body {
+      padding: 20px;
+    }
+
+    .size {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      padding: 22px 12px;
+      margin-bottom: 16px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      font-family: var(--mono);
+    }
+
+    .size b {
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+    }
+
+    .size span {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #1A1306;
+      font: 700 14px/1.2 inherit;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .status {
+      min-height: 64px;
+      margin-top: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--body);
+      font: 600 12px/1.55 var(--mono);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .status.loading {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-color: transparent;
+    }
+
+    .status.success {
+      color: var(--ok);
+      background: var(--ok-soft);
+      border-color: transparent;
+    }
+
+    .status.error {
+      color: var(--err);
+      background: var(--err-soft);
+      border-color: transparent;
+    }
+
+    .hint {
+      margin-top: 14px;
+      color: var(--mute);
+      font-size: 11.5px;
+      line-height: 1.65;
+    }
+
+    .hint code {
+      color: var(--ink);
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 1px 4px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      word-break: break-all;
+    }
+
+    .section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+      color: var(--mute);
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line-strong);
+      background: var(--soft);
+      color: var(--body);
+      padding: 5px 8px;
+      font: 700 11px/1 var(--mono);
+      cursor: pointer;
+    }
+
+    .mini-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .steps {
+      display: grid;
+      gap: 9px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .step-no {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      background: var(--soft);
+      color: var(--accent);
+      font: 700 11px/1 var(--mono);
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 12.5px;
+    }
+
+    .step p,
+    .project p {
+      color: var(--mute);
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--body);
+      font: 600 11px/1.4 var(--mono);
+    }
+
+    .empty {
+      padding: 12px 4px;
+      text-align: center;
+      color: var(--faint);
+      font: 600 11px/1.4 var(--mono);
+    }
+
+    .project a {
+      color: var(--accent);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .project a:hover {
+      color: var(--accent-hover);
+    }
+
+    .project p + p {
+      margin-top: 7px;
+    }
+
+    .foot {
+      padding: 12px 20px;
+      border-top: 1px solid var(--line);
+      color: var(--faint);
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 420px) {
+      body { padding: 12px; }
+      .head, .body { padding-left: 16px; padding-right: 16px; }
+      .size b { font-size: 36px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🇬🇧 Giffgaff 保号</h1>
-        <div class="subtitle">极简流量消耗工具</div>
-        
-        <div class="info-box">
-            <strong>本次将消耗：</strong>
-            约 120 KB 数据流量<br>
-            预计费用：2-3 便士 (£0.02-0.03)
+  <main class="panel">
+    <header class="head">
+      <h1>GG Keeper</h1>
+      <p class="subtitle">点击按钮下载约 125KB payload，用于 Giffgaff 保号测试。</p>
+    </header>
+
+    <section class="body">
+      <div class="size"><b id="sizeText">125.67</b><span>KB</span></div>
+      <button class="btn" id="startBtn" type="button">开始保号</button>
+      <div class="status" id="statusBox">等待操作</div>
+      <p class="hint">
+        手机测试请先关闭 Wi-Fi，并限制其他应用使用移动数据。固件里填
+        <code>/api/payload?size=128684</code>；不想用函数时填
+        <code>/payload.txt</code>。
+      </p>
+
+      <section class="section">
+        <div class="section-head"><span>Checklist</span><span>Mobile Data</span></div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-no">1</div>
+            <div><b>关闭 Wi-Fi</b><p>确保本次访问走手机蜂窝网络，或由固件走 ML307 蜂窝 PDP。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-no">2</div>
+            <div><b>限制后台联网</b><p>手机手动测试时，只给浏览器保留移动数据权限。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-no">3</div>
+            <div><b>完成后关数据</b><p>网页显示成功后立即关闭移动数据，再到运营商 App 或 USSD 查询确认。</p></div>
+          </div>
         </div>
-        
-        <button id="btn" onclick="consumeData()">
-            🚀 开始保号
-        </button>
-        
-        <div id="status"></div>
-        
-        <div class="history">
-            <div class="history-title">使用记录</div>
-            <div id="historyList"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <span>History</span>
+          <button class="mini-btn" id="clearHistory" type="button">清空</button>
         </div>
-        
-        <div class="warning">
-            <strong>⚠️ 使用前必读：</strong>
-            1. 关闭 Wi-Fi，确保使用移动数据<br>
-            2. 禁止其他应用联网权限<br>
-            3. 仅允许浏览器使用移动数据<br>
-            4. 完成后立即关闭移动数据
-        </div>
-    </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
 
-    <script>
-        // 加载历史记录
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('ggHistory') || '[]');
-            const historyList = document.getElementById('historyList');
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<div class="history-item">暂无记录</div>';
-                return;
-            }
-            
-            historyList.innerHTML = history.slice(-5).reverse().map(item => 
-                `<div class="history-item">✓ ${item.date} - ${item.size} KB</div>`
-            ).join('');
+      <section class="section project">
+        <div class="section-head"><span>Project</span><span>Open Source</span></div>
+        <p>本页面用于配合 SMS Forwarding 固件的蜂窝保号诊断和定时任务。站点本身不上传隐私数据，历史记录仅保存在当前浏览器。</p>
+        <p>Fork: <a href="https://github.com/MineSunshineone/gg-keeper" target="_blank" rel="noopener">MineSunshineone/gg-keeper</a></p>
+        <p>Original: <a href="https://github.com/dennischancs/gg-keeper" target="_blank" rel="noopener">dennischancs/gg-keeper</a></p>
+      </section>
+    </section>
+
+    <footer class="foot">ESA Pages Ready</footer>
+  </main>
+
+  <script>
+    const DEFAULT_BYTES = 128684;
+    const startBtn = document.getElementById('startBtn');
+    const statusBox = document.getElementById('statusBox');
+    const sizeText = document.getElementById('sizeText');
+    const historyList = document.getElementById('historyList');
+    const clearHistory = document.getElementById('clearHistory');
+    const HISTORY_KEY = 'ggKeeperHistory';
+
+    function kb(bytes) {
+      return (bytes / 1024).toFixed(2);
+    }
+
+    function setStatus(type, text) {
+      statusBox.className = 'status' + (type ? ' ' + type : '');
+      statusBox.textContent = text;
+    }
+
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+      catch (_) { return []; }
+    }
+
+    function saveHistory(item) {
+      const items = loadHistory();
+      items.push(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(-20)));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const items = loadHistory().slice(-5).reverse();
+      if (!items.length) {
+        historyList.innerHTML = '<div class="empty">暂无记录</div>';
+        return;
+      }
+      historyList.innerHTML = items.map(item =>
+        '<div class="history-item"><span>' + item.time + '</span><span>' +
+        item.size + ' KB</span></div>'
+      ).join('');
+    }
+
+    function noCache(path) {
+      const sep = path.indexOf('?') >= 0 ? '&' : '?';
+      return path + sep + 't=' + Date.now() + '&r=' + Math.random().toString(36).slice(2);
+    }
+
+    async function fetchPayload(path, label) {
+      const started = performance.now();
+      const response = await fetch(noCache(path), {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
-        
-        // 保存历史记录
-        function saveHistory(size) {
-            const history = JSON.parse(localStorage.getItem('ggHistory') || '[]');
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            history.push({
-                date: dateStr,
-                size: size,
-                timestamp: now.getTime()
-            });
-            
-            // 只保留最近20条记录
-            if (history.length > 20) {
-                history.shift();
-            }
-            
-            localStorage.setItem('ggHistory', JSON.stringify(history));
-            loadHistory();
+      });
+      if (!response.ok) throw new Error(label + ' HTTP ' + response.status);
+
+      const blob = await response.blob();
+      const seconds = ((performance.now() - started) / 1000).toFixed(2);
+      return { bytes: blob.size, seconds, label };
+    }
+
+    async function run() {
+      startBtn.disabled = true;
+      startBtn.textContent = '下载中...';
+      setStatus('loading', '正在通过蜂窝网络请求 payload...');
+
+      try {
+        let result;
+        try {
+          result = await fetchPayload('/api/payload?size=' + DEFAULT_BYTES, '动态 payload');
+        } catch (_) {
+          result = await fetchPayload('/payload.txt', '静态文件');
         }
-        
-        function consumeData() {
-            const btn = document.getElementById('btn');
-            const status = document.getElementById('status');
-            
-            btn.disabled = true;
-            status.className = 'loading';
-            status.innerHTML = "📡 正在连接服务器...<br><div class='stats'>请保持网络连接</div>";
 
-            // 防缓存：添加时间戳
-            const timestamp = new Date().getTime();
-            const randomStr = Math.random().toString(36).substring(7);
-            const fileUrl = `payload.txt?t=${timestamp}&r=${randomStr}`; 
+        sizeText.textContent = kb(result.bytes);
+        saveHistory({
+          time: new Date().toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+          size: kb(result.bytes)
+        });
+        setStatus('success', '完成：' + kb(result.bytes) + ' KB\n来源：' + result.label + '\n耗时：' + result.seconds + ' 秒');
+      } catch (error) {
+        setStatus('error', '失败：' + (error && error.message ? error.message : String(error)));
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = '再次保号';
+      }
+    }
 
-            const startTime = new Date().getTime();
-
-            fetch(fileUrl, {
-                cache: 'no-store',  // 强制不使用缓存
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache'
-                }
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error('网络请求失败');
-                    return response.blob();
-                })
-                .then(blob => {
-                    const sizeInKB = (blob.size / 1024).toFixed(2);
-                    const duration = ((new Date().getTime() - startTime) / 1000).toFixed(2);
-                    
-                    status.className = 'success';
-                    status.innerHTML = `
-                        ✅ 保号成功！
-                        <div class='stats'>
-                            已消耗：${sizeInKB} KB<br>
-                            耗时：${duration} 秒
-                        </div>
-                    `;
-                    
-                    // 保存记录
-                    saveHistory(sizeInKB);
-                    
-                    btn.disabled = false;
-                    btn.innerText = "🔄 再次保号";
-                })
-                .catch(error => {
-                    status.className = 'error';
-                    status.innerHTML = `
-                        ❌ 操作失败
-                        <div class='stats'>${error.message}</div>
-                    `;
-                    btn.disabled = false;
-                });
-        }
-        
-        // 页面加载时显示历史记录
-        window.onload = loadHistory;
-    </script>
+    sizeText.textContent = kb(DEFAULT_BYTES);
+    startBtn.addEventListener('click', run);
+    clearHistory.addEventListener('click', function() {
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+      setStatus('', '历史记录已清空');
+    });
+    renderHistory();
+  </script>
 </body>
 </html>
